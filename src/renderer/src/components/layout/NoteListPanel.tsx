@@ -39,7 +39,6 @@ interface SettingMenuItem {
 const SETTING_ITEMS: SettingMenuItem[] = [
   { id: 'import', label: '导入笔记', icon: Upload },
   { id: 'export', label: '导出笔记', icon: Download },
-  { id: 'openclaw', label: 'Openclaw', icon: Upload, iconEmoji: '🦞' },
   { id: 'reset', label: '重置数据', icon: RotateCcw },
   { id: 'about', label: '关于', icon: Info }
 ]

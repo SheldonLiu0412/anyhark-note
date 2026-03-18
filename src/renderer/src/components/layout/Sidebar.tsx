@@ -128,6 +128,15 @@ export function Sidebar(): React.JSX.Element {
         setCurrentView('recycle')
         loadDeletedMemos()
       }
+    },
+    {
+      id: 'openclaw' as const,
+      label: 'Openclaw 🦞',
+      icon: Hash,
+      onClick: () => {
+        setCurrentView('settings')
+        useUIStore.getState().setSelectedSettingId('openclaw')
+      }
     }
   ]
 
@@ -153,7 +162,10 @@ export function Sidebar(): React.JSX.Element {
       {/* Nav items */}
       <nav className="px-2 space-y-0.5 flex-shrink-0 mt-1">
         {navItems.map((item) => {
-          const isActive = currentView === item.id
+          const isActive =
+            item.id === 'openclaw'
+              ? currentView === 'settings' && useUIStore.getState().selectedSettingId === 'openclaw'
+              : currentView === item.id
           return (
             <button
               key={item.id}

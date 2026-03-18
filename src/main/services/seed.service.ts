@@ -19,11 +19,19 @@ function tag(p: string): TipTapNode {
 }
 
 function mentionLink(url: string, label: string): TipTapNode {
-  return { type: 'mention-link', attrs: { url, label } }
+  return {
+    type: 'text',
+    text: `🔗 ${label}`,
+    marks: [{ type: 'mention-link', attrs: { url } }]
+  }
 }
 
-function mentionNote(memoId: string): TipTapNode {
-  return { type: 'mention-note', attrs: { memoId, label: '@Note' } }
+function mentionNote(memoId: string, label: string): TipTapNode {
+  return {
+    type: 'text',
+    text: label,
+    marks: [{ type: 'mention-note', attrs: { memoId } }]
+  }
 }
 
 function paragraph(...content: TipTapNode[]) {
@@ -41,8 +49,6 @@ function extractPlain(content: TipTapDocument): string {
       for (const child of node.content) {
         if (child.text) parts.push(child.text)
         else if (child.type === 'tag' && child.attrs?.label) parts.push(String(child.attrs.label))
-        else if (child.type === 'mention-note') parts.push('@Note')
-        else if (child.type === 'mention-link' && child.attrs?.label) parts.push(String(child.attrs.label))
       }
     }
   }
@@ -74,7 +80,7 @@ export async function seedExampleMemos(): Promise<void> {
         text(' 即可创建标签，用 / 实现多级分类。左侧面板会自动构建标签树，方便你快速筛选。')
       ),
       paragraph(
-        text('如果你之前在其他 APP 已有笔记，可以点击左下角的「导入」按钮一键迁移（目前支持 Flomo，后续会陆续支持更多应用）。')
+        text('如果你之前在其他 APP 已有笔记，可以点击左下角 ⚙️ 设置，选择「导入笔记」一键迁移（目前支持 Flomo APP 和苹果备忘录）。')
       )
     ),
     ['入门/欢迎'],
@@ -151,9 +157,12 @@ export async function seedExampleMemos(): Promise<void> {
     doc(
       paragraph(tag('入门/网址'), text(' 可以用 @ 给笔记添加链接')),
       paragraph(
+        text('在编辑笔记时输入 @，选择「插入网址」，填写链接和显示名称即可。')
+      ),
+      paragraph(
         text('比如 '),
         mentionLink('https://snailsshell.com', '碎蜗牛壳的个人网页'),
-        text(' ← 点击蓝色标签即可复制链接到剪贴板。')
+        text(' ← 点击即可复制链接到剪贴板。')
       )
     ),
     ['入门/网址'],
@@ -172,14 +181,31 @@ export async function seedExampleMemos(): Promise<void> {
     3
   )
 
-  // Note 8 (newest / top) — @Note jump targeting note1 (bottom)
+  // Note 8 — Openclaw AI Agent
+  await seed(
+    doc(
+      paragraph(tag('入门/Openclaw'), text(' 让 AI Agent 帮你操作笔记 🦞')),
+      paragraph(
+        text('点击左侧的 Openclaw 🦞 按钮，复制 Prompt 发给你的 AI Agent，它就能学会读写你的 Anyhark 笔记了。')
+      ),
+      paragraph(text('支持 Cursor、Codex、Claude Code、Openclaw 等本地 AI 工具。'))
+    ),
+    ['入门/Openclaw'],
+    [],
+    2
+  )
+
+  // Note 9 (newest / top) — @Note jump targeting note1 (bottom)
   await seed(
     doc(
       paragraph(tag('入门/引用'), text(' 输入 @ 可以引用其他笔记')),
       paragraph(
-        text('试试点击这个 '),
-        mentionNote(note1.id),
-        text(' 标签，会跳转到最下方的欢迎笔记 ↓')
+        text('在编辑笔记时输入 @，会弹出笔记列表供你检索选择。选中后会生成引用标签，点击即可跳转。')
+      ),
+      paragraph(
+        text('试试点击 '),
+        mentionNote(note1.id, '@Note-入门/欢迎-欢迎来到Anyhark'),
+        text(' ，会跳转到欢迎笔记 ↓')
       ),
       paragraph(text('开始记录属于你的第一条笔记吧！'))
     ),
