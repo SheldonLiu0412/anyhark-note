@@ -1,0 +1,28 @@
+import * as memoService from '../services/memo.service'
+import * as tagIndexService from '../services/tag-index.service'
+import { registerMemoIpc } from './memo.ipc'
+import { registerTagIpc } from './tag.ipc'
+import { registerSearchIpc } from './search.ipc'
+import { registerImageIpc } from './image.ipc'
+import { registerRecycleIpc } from './recycle.ipc'
+import { registerImportIpc } from './import.ipc'
+
+/**
+ * Initialize services and register all IPC handlers.
+ * Must be called before creating the browser window.
+ */
+export async function registerAllIpcHandlers(): Promise<void> {
+  // Initialize storage services
+  await memoService.init()
+  await tagIndexService.init(memoService.listMemoMeta())
+
+  // Register IPC handlers
+  registerMemoIpc()
+  registerTagIpc()
+  registerSearchIpc()
+  registerImageIpc()
+  registerRecycleIpc()
+  registerImportIpc()
+
+  console.log('[IPC] All handlers registered')
+}

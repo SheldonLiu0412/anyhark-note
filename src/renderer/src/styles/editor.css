@@ -1,0 +1,104 @@
+.tiptap-editor {
+  @apply w-full;
+}
+
+.tiptap-editor .ProseMirror {
+  @apply outline-none min-h-[80px] text-sm leading-relaxed;
+}
+
+.tiptap-editor .ProseMirror p {
+  @apply my-1;
+}
+
+.tiptap-editor .ProseMirror p.is-editor-empty:first-child::before {
+  @apply text-muted-foreground/50 float-left h-0 pointer-events-none;
+  content: attr(data-placeholder);
+}
+
+.tiptap-editor .ProseMirror ul {
+  @apply list-disc pl-5 my-1;
+}
+
+.tiptap-editor .ProseMirror ol {
+  @apply list-decimal pl-5 my-1;
+}
+
+.tiptap-editor .ProseMirror li {
+  @apply my-0.5;
+}
+
+.tiptap-editor .ProseMirror strong {
+  @apply font-semibold;
+}
+
+.tiptap-editor .ProseMirror mark {
+  @apply bg-yellow-200/70 rounded-sm px-0.5;
+}
+
+.tiptap-editor .ProseMirror u {
+  @apply underline underline-offset-2;
+}
+
+/* Images are rendered in separate gallery, hide inline */
+.tiptap-editor .ProseMirror img {
+  @apply hidden;
+}
+
+/* Tag node styling */
+.tiptap-editor .ProseMirror .tag-node,
+.memo-card .ProseMirror .tag-node {
+  @apply inline-flex items-center rounded-md bg-primary/10 text-primary px-1.5 py-0.5 text-xs font-medium cursor-pointer;
+  @apply hover:bg-primary/20 transition-colors;
+}
+
+/* Read-only memo card rendering */
+.memo-card .ProseMirror {
+  @apply outline-none text-sm leading-relaxed;
+}
+
+.memo-card .ProseMirror p {
+  @apply my-1;
+}
+
+.memo-card .ProseMirror ul {
+  @apply list-disc pl-5 my-1;
+}
+
+.memo-card .ProseMirror ol {
+  @apply list-decimal pl-5 my-1;
+}
+
+.memo-card .ProseMirror li {
+  @apply my-0.5;
+}
+
+.memo-card .ProseMirror strong {
+  @apply font-semibold;
+}
+
+.memo-card .ProseMirror mark {
+  @apply bg-yellow-200/70 rounded-sm px-0.5;
+}
+
+.memo-card .ProseMirror u {
+  @apply underline underline-offset-2;
+}
+
+/* Images are rendered in separate gallery, hide inline */
+.memo-card .ProseMirror img {
+  @apply hidden;
+}
+
+/* Tag suggestion dropdown */
+.tag-suggestion {
+  @apply bg-popover border border-border rounded-lg shadow-lg overflow-hidden p-1;
+}
+
+.tag-suggestion-item {
+  @apply px-3 py-1.5 text-sm rounded-md cursor-pointer;
+  @apply hover:bg-accent transition-colors;
+}
+
+.tag-suggestion-item.is-selected {
+  @apply bg-accent text-accent-foreground;
+}

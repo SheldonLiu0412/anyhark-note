@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 20% 98%;
+    --foreground: 30 10% 12%;
+    --card: 40 25% 99%;
+    --card-foreground: 30 10% 12%;
+    --popover: 40 25% 99%;
+    --popover-foreground: 30 10% 12%;
+    --primary: 30 12% 18%;
+    --primary-foreground: 40 20% 96%;
+    --secondary: 35 12% 94%;
+    --secondary-foreground: 30 10% 18%;
+    --muted: 35 10% 94%;
+    --muted-foreground: 30 6% 52%;
+    --accent: 35 18% 91%;
+    --accent-foreground: 30 10% 18%;
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 35 12% 90%;
+    --input: 35 12% 90%;
+    --ring: 30 12% 18%;
+    --radius: 0.5rem;
+
+    --sidebar-bg: 30 14% 14%;
+    --sidebar-fg: 35 10% 72%;
+    --sidebar-fg-bright: 35 12% 92%;
+    --sidebar-border: 30 10% 20%;
+    --sidebar-hover: 30 10% 18%;
+    --sidebar-active: 30 14% 22%;
+    --sidebar-accent: 35 50% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC',
+      'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial,
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: 0.01em;
+  }
+}
+
+/* Electron: make the app draggable by title bar area */
+.app-drag-region {
+  -webkit-app-region: drag;
+}
+.app-no-drag {
+  -webkit-app-region: no-drag;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.15);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.3);
+}
+
+/* Sidebar scrollbar override (light on dark) */
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: hsl(var(--sidebar-fg) / 0.15);
+}
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--sidebar-fg) / 0.3);
+}
+
+/* Selection color */
+::selection {
+  background: hsl(35 50% 60% / 0.3);
+}
