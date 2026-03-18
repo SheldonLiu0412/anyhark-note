@@ -5,7 +5,8 @@
 <h1 align="center">Anyhark</h1>
 
 <p align="center">
-  一个面向人类和 Ta 的 Agent 分身的本地知识笔记应用（现阶段已支持卡片笔记）
+  一个面向人类和 Ta 的 Agent 分身的本地知识笔记应用。
+
   -- “人类负责 Any ，Agent负责 Hark ”
 </p>
 
@@ -24,7 +25,7 @@
 4. 标签体系学习了 Flomo APP、因为真的是很棒的设计、也推荐大家去用去订阅；大家会很快发现 Anyhark 的定位完全不同，这部分见2.
 5. Anyhark 会面向 Agent 设计能力，例如下一步所需要的备份功能，我希望 Agent 独立完成，只在必要时申请你的协助；--“用户变了，是时候重新看待产品使用成本了”
 
-## 是什么
+## 当前核心功能
 
 一个桌面端的知识管理应用，核心功能：
 
@@ -34,6 +35,8 @@
 - **导入导出** — 支持从 Flomo 迁移过来；也可以导出为 CSV 或 JSON 备份
 - **回收站** — 删错了可以找回来
 - **全文搜索** — 按关键词或标签检索
+
+以上都可以被你的 AI Agent 学习使用。
 
 <p align="center">
   <img src="docs/images/使用示例-添加笔记.png" width="720" alt="编辑笔记" />
@@ -96,6 +99,12 @@
 
 <p align="center">
   <img src="docs/images/Openclaw接入演示-操作笔记.png" width="720" alt="AI 帮你记笔记" />
+</p>
+
+让 AI 听见你，与Ta，与自己深度对话，：
+
+<p align="center">
+  <img src="docs/images/Openclaw接入示例-通过预置SKILL学会操作Anyhark.png" width="720" alt="AI 帮你记笔记" />
 </p>
 
 如果你是开发者，也可以直接用 CLI 或 HTTP API 来操作，详见 [skills/anyhark-note/SKILL.md](skills/anyhark-note/SKILL.md)。
