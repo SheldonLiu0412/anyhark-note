@@ -6,7 +6,9 @@
 
 <p align="center">
   一个面向人类及其 Agent 分身的本地知识笔记应用。
+</p>
 
+<p align="center">
   “人类负责 Any ，Agent负责 Hark ”
 </p>
 
