@@ -35,6 +35,7 @@ nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
   createDesktopShortcut: true
+  artifactName: ${name}-${version}-setup.${ext}
 dmg:
   artifactName: ${name}-${version}-${arch}.${ext}
 npmRebuild: false
