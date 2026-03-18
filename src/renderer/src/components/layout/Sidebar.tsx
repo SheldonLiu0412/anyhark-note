@@ -584,7 +584,10 @@ export function Sidebar(): React.JSX.Element {
         >
           Anyhark
         </h1>
-        <span className="text-[10px] app-no-drag opacity-25 ml-auto tabular-nums">v0.1.0</span>
+        <span
+          className="text-[10px] app-no-drag ml-auto tabular-nums"
+          style={{ color: 'hsl(var(--sidebar-fg) / 0.4)' }}
+        >v0.1.0</span>
       </div>
 
       {/* Nav items */}
