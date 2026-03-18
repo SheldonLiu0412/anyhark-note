@@ -147,7 +147,7 @@ export function Sidebar(): React.JSX.Element {
         <span
           className="text-[10px] app-no-drag ml-auto tabular-nums"
           style={{ color: 'hsl(var(--sidebar-fg) / 0.4)' }}
-        >v0.1.2</span>
+        >v0.1.3</span>
       </div>
 
       {/* Nav items */}

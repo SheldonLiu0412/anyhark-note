@@ -407,7 +407,7 @@ function AboutSetting(): React.JSX.Element {
         <img src={logoImg} alt="Anyhark" className="w-12 h-12 rounded-xl" />
         <div>
           <h3 className="text-[15px] font-semibold text-foreground">Anyhark</h3>
-          <p className="text-[13px] text-muted-foreground">v0.1.2</p>
+          <p className="text-[13px] text-muted-foreground">v0.1.3</p>
         </div>
       </div>
 
