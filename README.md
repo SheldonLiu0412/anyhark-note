@@ -17,6 +17,10 @@
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey.svg" alt="Platform" />
 </p>
 
+<p align="center">
+  <img src="docs/images/宣传图.png" width="800" alt="宣传图" />
+</p>
+
 ---
 
 ## 了解 Anyhark
