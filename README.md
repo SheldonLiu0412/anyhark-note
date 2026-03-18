@@ -28,7 +28,7 @@
 
 1. 在Vibe时代，我们会看到更多 Agent 友好型 APP
 2. 人生是一场巨大的上下文，Anyhark 希望让你的上下文能够被更好的记录与“听到”，不止于笔记
-3. Anyhark 所有数据存在本地，不注册、不联网；不构建MCP，基于 CLI 及 预置 SKILL ，AI Agent 可以直接帮你读写笔记及更多操作，详见 [skills/anyhark-note/SKILL.md](skills/anyhark-note/SKILL.md)；
+3. Anyhark 所有数据存在本地，不注册、不联网，不构建MCP；基于 CLI 及 预置 SKILL ，AI Agent 可以通过更快、更低Token消耗、更稳定的方式使用 Anyhark 帮你读写笔记及更多操作，详见 [skills/anyhark-note/SKILL.md](skills/anyhark-note/SKILL.md)；
 4. 交互学习了Apple备忘录、标签体系学习了 Flomo APP、从理念到体验都很棒的产品、也推荐大家去用；
 5. Anyhark 希望更多面向 Agent 设计能力，为其添加优化 CLI 能力，通过SKILL完成能力的一站式创建、迁移、复用；非必要不向用户增加使用成本。
 6. 最简使用方式：复制本页链接直接发给你的本地 Agent 学习即可
