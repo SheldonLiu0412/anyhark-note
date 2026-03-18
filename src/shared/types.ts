@@ -129,6 +129,14 @@ export interface AnyharkImportResult {
   images: number
 }
 
+export interface AppleNotesImportResult {
+  total: number
+  imported: number
+  skipped: number
+  images: number
+  hashConverted: number
+}
+
 // ============================================================
 // ElectronAPI shape exposed to renderer
 // ============================================================
@@ -167,6 +175,7 @@ export interface ElectronAPI {
     selectDirectory(): Promise<string | null>
     flomo(dirPath: string): Promise<FlomoImportResult>
     anyhark(dirPath: string): Promise<AnyharkImportResult>
+    appleNotes(): Promise<AppleNotesImportResult>
   }
   export: {
     csv(): Promise<{ count: number; path: string } | null>

@@ -154,14 +154,17 @@ function ImportGuideDialog({
   open,
   onClose,
   onSelectFlomoFolder,
-  onSelectAnyharkFolder
+  onSelectAnyharkFolder,
+  onImportAppleNotes
 }: {
   open: boolean
   onClose: () => void
   onSelectFlomoFolder: () => void
   onSelectAnyharkFolder: () => void
+  onImportAppleNotes: () => void
 }): React.JSX.Element | null {
-  const [view, setView] = useState<'select' | 'flomo' | 'anyhark'>('select')
+  const [view, setView] = useState<'select' | 'flomo' | 'anyhark' | 'apple-notes'>('select')
+  const isMac = navigator.userAgent.includes('Macintosh')
 
   const handleClose = useCallback(() => {
     onClose()
@@ -169,6 +172,13 @@ function ImportGuideDialog({
   }, [onClose])
 
   if (!open) return null
+
+  const viewTitles: Record<string, string> = {
+    select: '导入笔记',
+    flomo: '从 Flomo 导入',
+    anyhark: '从 Anyhark 导入',
+    'apple-notes': '从苹果备忘录导入'
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-[8vh]">
@@ -182,7 +192,7 @@ function ImportGuideDialog({
               </button>
             )}
             <h3 className="text-[14px] font-semibold text-foreground">
-              {view === 'select' ? '导入笔记' : view === 'flomo' ? '从 Flomo 导入' : '从 Anyhark 导入'}
+              {viewTitles[view]}
             </h3>
           </div>
           <button onClick={handleClose} className="p-1 rounded hover:bg-accent transition-colors">
@@ -193,6 +203,20 @@ function ImportGuideDialog({
         {view === 'select' && (
           <>
             <div className="px-5 py-4 space-y-3 max-h-[70vh] overflow-y-auto">
+              {isMac && (
+                <button
+                  onClick={() => setView('apple-notes')}
+                  className="w-full text-left p-3.5 rounded-lg border border-border/60 hover:border-primary/40 hover:bg-primary/5 transition-colors group"
+                >
+                  <div className="flex items-center gap-2.5 mb-1.5">
+                    <FileText size={16} className="text-muted-foreground group-hover:text-primary transition-colors" />
+                    <span className="text-[13px] font-medium text-foreground">从苹果备忘录导入</span>
+                  </div>
+                  <p className="text-[12px] text-muted-foreground leading-relaxed pl-[26px]">
+                    直接从 macOS 备忘录 App 中读取并导入所有笔记。
+                  </p>
+                </button>
+              )}
               <button
                 onClick={() => setView('flomo')}
                 className="w-full text-left p-3.5 rounded-lg border border-border/60 hover:border-primary/40 hover:bg-primary/5 transition-colors group"
@@ -311,6 +335,138 @@ function ImportGuideDialog({
             </div>
           </>
         )}
+
+        {view === 'apple-notes' && (
+          <>
+            <div className="px-5 py-4 space-y-4 max-h-[70vh] overflow-y-auto">
+              <div className="space-y-2.5">
+                <div className="flex items-start gap-2.5">
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-[11px] font-semibold flex items-center justify-center mt-0.5">1</span>
+                  <p className="text-[13px] text-foreground/80 leading-relaxed">
+                    点击下方按钮，Anyhark 将直接从备忘录 App 中读取所有笔记内容。
+                  </p>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-[11px] font-semibold flex items-center justify-center mt-0.5">2</span>
+                  <p className="text-[13px] text-foreground/80 leading-relaxed">
+                    首次导入时，系统会弹窗请求自动化权限，请点击<span className="font-medium">「好」</span>以允许访问。
+                  </p>
+                </div>
+              </div>
+              <div className="rounded-lg border border-border/60 bg-muted/30 p-3 space-y-1.5">
+                <p className="text-[12px] text-muted-foreground leading-relaxed">
+                  备忘录的<span className="font-medium">文件夹名称</span>将自动转换为标签。
+                </p>
+                <p className="text-[12px] text-muted-foreground leading-relaxed">
+                  笔记中的图片也会一并导入。导入数量较多时可能需要等待片刻。
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-2 px-5 py-3 border-t border-border/50 bg-muted/20">
+              <button
+                onClick={handleClose}
+                className="px-3.5 py-1.5 text-[13px] text-muted-foreground hover:text-foreground rounded-lg transition-colors"
+              >
+                取消
+              </button>
+              <button
+                onClick={onImportAppleNotes}
+                className="px-4 py-1.5 text-[13px] font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+              >
+                开始导入
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
+const APPLE_NOTES_AGENT_PROMPT = `请帮我整理 #Apple Notes 下所有笔记的标签，将它们的标签逐条整理为 #Apple Notes/文件夹名称/笔记概括（2～10个字），不改变任何原有内容。`
+
+function AppleNotesResultDialog({
+  open,
+  onClose,
+  result
+}: {
+  open: boolean
+  onClose: () => void
+  result: { imported: number; images: number; hashConverted: number }
+}): React.JSX.Element | null {
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = useCallback(async () => {
+    await navigator.clipboard.writeText(APPLE_NOTES_AGENT_PROMPT)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }, [])
+
+  if (!open) return null
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[8vh]">
+      <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-md mx-4 bg-popover border border-border rounded-xl shadow-2xl overflow-hidden">
+        <div className="flex items-center justify-between px-5 h-12 border-b border-border/50">
+          <h3 className="text-[14px] font-semibold text-foreground">苹果备忘录导入完成</h3>
+          <button onClick={onClose} className="p-1 rounded hover:bg-accent transition-colors">
+            <X size={14} className="text-muted-foreground" />
+          </button>
+        </div>
+        <div className="px-5 py-4 space-y-4 max-h-[70vh] overflow-y-auto">
+          <p className="text-[13px] text-foreground/80 leading-relaxed">
+            已成功导入 <span className="font-semibold">{result.imported}</span> 条笔记
+            {result.images > 0 && <>，<span className="font-semibold">{result.images}</span> 张图片</>}。
+          </p>
+
+          <div className="rounded-lg border border-border/60 bg-muted/30 p-3.5 space-y-2">
+            <p className="text-[12px] font-medium text-foreground/70">导入时已做以下处理：</p>
+            <ul className="text-[12px] text-muted-foreground leading-relaxed space-y-1 list-disc pl-4">
+              {result.hashConverted > 0 && (
+                <li>
+                  原笔记中的 <span className="font-mono text-foreground/60">#</span> 已转换为{' '}
+                  <span className="font-mono text-foreground/60">+</span>（共 {result.hashConverted} 处），避免与标签冲突
+                </li>
+              )}
+              <li>
+                每条笔记已添加{' '}
+                <span className="font-mono text-[11px] text-foreground/60">#Apple Notes/文件夹/前5字</span>{' '}
+                标签，方便归类查看
+              </li>
+            </ul>
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-[13px] text-foreground/80 leading-relaxed">
+              你可以让 AI Agent 帮你整理这些标签，复制以下内容发送即可：
+            </p>
+            <div className="relative rounded-lg border border-border/60 bg-muted/30 p-3.5">
+              <pre className="text-[12px] text-foreground/80 leading-relaxed whitespace-pre-wrap break-words pr-8">
+                {APPLE_NOTES_AGENT_PROMPT}
+              </pre>
+              <button
+                onClick={handleCopy}
+                className="absolute top-2.5 right-2.5 p-1.5 rounded-md hover:bg-accent transition-colors"
+                title="复制"
+              >
+                {copied ? (
+                  <Check size={14} className="text-green-500" />
+                ) : (
+                  <Copy size={14} className="text-muted-foreground" />
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center justify-end px-5 py-3 border-t border-border/50 bg-muted/20">
+          <button
+            onClick={onClose}
+            className="px-3.5 py-1.5 text-[13px] font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            知道了
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -463,6 +619,11 @@ export function Sidebar(): React.JSX.Element {
   const [showImportGuide, setShowImportGuide] = useState(false)
   const [showExportGuide, setShowExportGuide] = useState(false)
   const [showOpenclawDialog, setShowOpenclawDialog] = useState(false)
+  const [appleNotesResult, setAppleNotesResult] = useState<{
+    imported: number
+    images: number
+    hashConverted: number
+  } | null>(null)
 
   const handleResetConfirm = useCallback(async () => {
     setShowResetDialog(false)
@@ -542,6 +703,27 @@ export function Sidebar(): React.JSX.Element {
     } finally {
       setImporting(false)
       setTimeout(() => setImportResult(null), 4000)
+    }
+  }, [loadMemos, loadTags])
+
+  const handleImportAppleNotes = useCallback(async () => {
+    setShowImportGuide(false)
+    setImporting(true)
+    setImportResult(null)
+    try {
+      const result = await api.import.appleNotes()
+      setAppleNotesResult({
+        imported: result.imported,
+        images: result.images,
+        hashConverted: result.hashConverted
+      })
+      await loadMemos()
+      await loadTags()
+    } catch (err) {
+      setImportResult('导入失败: ' + (err instanceof Error ? err.message : '未知错误'))
+      setTimeout(() => setImportResult(null), 4000)
+    } finally {
+      setImporting(false)
     }
   }, [loadMemos, loadTags])
 
@@ -688,8 +870,12 @@ export function Sidebar(): React.JSX.Element {
               onClick={() => setShowImportGuide(true)}
               title="导入笔记"
             >
-              <Upload size={11} />
-              {importing ? '导入中...' : '导入'}
+              {importing ? (
+                <RotateCcw size={11} className="animate-spin" />
+              ) : (
+                <Upload size={11} />
+              )}
+              导入
             </button>
             <button
               className={cn(
@@ -721,6 +907,7 @@ export function Sidebar(): React.JSX.Element {
         onClose={() => setShowImportGuide(false)}
         onSelectFlomoFolder={handleImportFlomo}
         onSelectAnyharkFolder={handleImportAnyhark}
+        onImportAppleNotes={handleImportAppleNotes}
       />
       <ExportGuideDialog
         open={showExportGuide}
@@ -732,6 +919,13 @@ export function Sidebar(): React.JSX.Element {
         open={showOpenclawDialog}
         onClose={() => setShowOpenclawDialog(false)}
       />
+      {appleNotesResult && (
+        <AppleNotesResultDialog
+          open={true}
+          onClose={() => setAppleNotesResult(null)}
+          result={appleNotesResult}
+        />
+      )}
     </div>
   )
 }

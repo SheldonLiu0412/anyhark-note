@@ -38,7 +38,8 @@ const api: ElectronAPI = {
   import: {
     selectDirectory: () => ipcRenderer.invoke('import:select-directory'),
     flomo: (dirPath) => ipcRenderer.invoke('import:flomo', dirPath),
-    anyhark: (dirPath) => ipcRenderer.invoke('import:anyhark', dirPath)
+    anyhark: (dirPath) => ipcRenderer.invoke('import:anyhark', dirPath),
+    appleNotes: () => ipcRenderer.invoke('import:apple-notes')
   },
   export: {
     csv: () => ipcRenderer.invoke('export:csv'),

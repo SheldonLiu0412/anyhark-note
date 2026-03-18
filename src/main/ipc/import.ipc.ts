@@ -1,6 +1,7 @@
 import { ipcMain, dialog, BrowserWindow } from 'electron'
 import { importFromFlomo } from '../services/flomo-import.service'
 import { importFromAnyhark } from '../services/anyhark-import.service'
+import { importFromAppleNotes } from '../services/apple-notes-import.service'
 import * as memoService from '../services/memo.service'
 import * as tagIndexService from '../services/tag-index.service'
 
@@ -33,6 +34,12 @@ export function registerImportIpc(): void {
 
   ipcMain.handle('import:anyhark', async (_event, dirPath: string) => {
     const result = await importFromAnyhark(dirPath)
+    await rebuildIndexes()
+    return result
+  })
+
+  ipcMain.handle('import:apple-notes', async () => {
+    const result = await importFromAppleNotes()
     await rebuildIndexes()
     return result
   })
