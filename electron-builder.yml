@@ -16,10 +16,7 @@ extraResources:
     to: seed-images
 mac:
   target:
-    - target: dmg
-      arch:
-        - arm64
-        - x64
+    - dmg
   identity: "Xiaodong Liu (TKJN6KFWAV)"
   hardenedRuntime: true
   gatekeeperAssess: false

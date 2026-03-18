@@ -47,7 +47,7 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-        run: npx electron-vite build && npx electron-builder --mac -c.mac.target.0.arch=${{ matrix.arch }} --publish never
+        run: npx electron-vite build && npx electron-builder --mac --${{ matrix.arch }} --publish never
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
