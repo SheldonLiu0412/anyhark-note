@@ -9,7 +9,13 @@ import type {
   UpdateMemoRequest
 } from '@shared/types'
 import { getMemosDir, getIndexDir } from '../utils/paths'
-import { extractPlainText, extractTags, extractImageFilenames } from '../utils/tiptap-text'
+import {
+  extractPlainText,
+  extractTags,
+  extractImageFilenames,
+  countWordsExcludingTags,
+  extractFullContentForExport
+} from '../utils/tiptap-text'
 import { readJSON, writeJSON, deleteFile, listFiles, fileExists } from './storage.service'
 
 const MAX_VERSIONS = 10
@@ -60,6 +66,7 @@ export async function rebuildMetadataIndex(): Promise<void> {
     }
   }
 
+  metas.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
   metadataIndex = metas
   await saveMetadataIndex()
 }
@@ -81,8 +88,7 @@ async function saveMetadataIndex(): Promise<void> {
  */
 export function buildMemoMeta(memo: Memo): MemoMeta {
   const preview = memo.plainText.slice(0, 100)
-  // For Chinese text, count characters (not words split by whitespace)
-  const wordCount = memo.plainText ? memo.plainText.replace(/\s+/g, '').length : 0
+  const wordCount = countWordsExcludingTags(memo.content)
 
   return {
     id: memo.id,
@@ -119,7 +125,7 @@ export async function createMemo(req: CreateMemoRequest): Promise<Memo> {
   await writeJSON(filePath, memo)
 
   const meta = buildMemoMeta(memo)
-  metadataIndex.push(meta)
+  metadataIndex.unshift(meta)
   await saveMetadataIndex()
 
   return memo
@@ -272,4 +278,59 @@ export async function deleteVersion(memoId: string, versionId: string): Promise<
   const memo = await readJSON<Memo>(filePath)
   memo.versions = memo.versions.filter((v) => v.versionId !== versionId)
   await writeJSON(filePath, memo)
+}
+
+export interface ExportMemoRow {
+  id: string
+  content: string
+  createdAt: string
+  images: string[]
+  ts: number
+}
+
+/**
+ * Export all active memos with text content and image filenames.
+ */
+export async function getAllMemosForExport(): Promise<ExportMemoRow[]> {
+  const memosDir = getMemosDir()
+  const files = await listFiles(memosDir)
+  const rows: ExportMemoRow[] = []
+
+  for (const file of files) {
+    try {
+      const memo = await readJSON<Memo>(path.join(memosDir, file))
+      if (memo.deletedAt) continue
+      const content = extractFullContentForExport(memo.content)
+      const d = new Date(memo.createdAt)
+      const dateStr = `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`
+      rows.push({ id: memo.id, content, createdAt: dateStr, images: memo.images || [], ts: d.getTime() })
+    } catch {
+      // skip corrupted
+    }
+  }
+
+  rows.sort((a, b) => a.ts - b.ts)
+  return rows
+}
+
+/**
+ * Export all active memos as full Memo objects for JSON backup.
+ */
+export async function getAllMemosForJsonExport(): Promise<Memo[]> {
+  const memosDir = getMemosDir()
+  const files = await listFiles(memosDir)
+  const memos: Memo[] = []
+
+  for (const file of files) {
+    try {
+      const memo = await readJSON<Memo>(path.join(memosDir, file))
+      if (memo.deletedAt) continue
+      memos.push(memo)
+    } catch {
+      // skip corrupted
+    }
+  }
+
+  memos.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+  return memos
 }

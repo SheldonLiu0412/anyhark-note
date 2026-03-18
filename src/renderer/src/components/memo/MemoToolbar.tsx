@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react'
-import { Bold, Highlighter, Underline, List, ListOrdered, ImagePlus } from 'lucide-react'
+import { Bold, Highlighter, Underline, List, ListOrdered, ImagePlus, AtSign } from 'lucide-react'
 import { cn } from '@renderer/lib/utils'
 import type { Editor } from '@tiptap/react'
 
 interface MemoToolbarProps {
   editor: Editor | null
   onImageUpload?: () => void
+  onMention?: () => void
   imagesFull?: boolean
 }
 
-export function MemoToolbar({ editor, onImageUpload, imagesFull }: MemoToolbarProps): React.JSX.Element | null {
+export function MemoToolbar({ editor, onImageUpload, onMention, imagesFull }: MemoToolbarProps): React.JSX.Element | null {
   const [, setTick] = useState(0)
 
   useEffect(() => {
@@ -73,6 +74,12 @@ export function MemoToolbar({ editor, onImageUpload, imagesFull }: MemoToolbarPr
       action: () => onImageUpload?.(),
       isActive: false,
       dimmed: imagesFull
+    },
+    {
+      icon: AtSign,
+      label: '引用笔记或网址',
+      action: () => onMention?.(),
+      isActive: false
     }
   ]
 

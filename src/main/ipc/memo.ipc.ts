@@ -6,7 +6,10 @@ import * as tagIndexService from '../services/tag-index.service'
 export function registerMemoIpc(): void {
   ipcMain.handle('memo:create', async (_event, req: CreateMemoRequest) => {
     try {
-      return await memoService.createMemo(req)
+      const memo = await memoService.createMemo(req)
+      tagIndexService.updateTagsForMemo(memo.id, [], memo.tags)
+      await tagIndexService.save()
+      return memo
     } catch (error) {
       console.error('[IPC] memo:create failed:', error)
       throw error
@@ -24,7 +27,12 @@ export function registerMemoIpc(): void {
 
   ipcMain.handle('memo:update', async (_event, req: UpdateMemoRequest) => {
     try {
-      return await memoService.updateMemo(req)
+      const oldMemo = await memoService.readMemo(req.id)
+      const oldTags = oldMemo.tags
+      const memo = await memoService.updateMemo(req)
+      tagIndexService.updateTagsForMemo(memo.id, oldTags, memo.tags)
+      await tagIndexService.save()
+      return memo
     } catch (error) {
       console.error('[IPC] memo:update failed:', error)
       throw error
@@ -33,7 +41,10 @@ export function registerMemoIpc(): void {
 
   ipcMain.handle('memo:delete', async (_event, id: string) => {
     try {
-      return await memoService.softDeleteMemo(id)
+      const oldMemo = await memoService.readMemo(id)
+      await memoService.softDeleteMemo(id)
+      tagIndexService.updateTagsForMemo(id, oldMemo.tags, [])
+      await tagIndexService.save()
     } catch (error) {
       console.error('[IPC] memo:delete failed:', error)
       throw error

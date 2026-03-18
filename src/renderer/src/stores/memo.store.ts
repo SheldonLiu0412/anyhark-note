@@ -1,6 +1,20 @@
 import { create } from 'zustand'
-import type { MemoMeta, Memo, CreateMemoRequest, UpdateMemoRequest } from '@shared/types'
+import type { MemoMeta, Memo, CreateMemoRequest, UpdateMemoRequest, TipTapDocument, TipTapNode } from '@shared/types'
 import { api } from '@renderer/lib/api'
+import { useTagStore } from './tag.store'
+
+function countWordsExcludingTags(doc: TipTapDocument): number {
+  const parts: string[] = []
+  function walk(nodes: TipTapNode[]): void {
+    for (const node of nodes) {
+      if (node.type === 'tag') continue
+      if (node.text) parts.push(node.text.replace(/#[^\s#]+/g, ''))
+      if (node.content) walk(node.content)
+    }
+  }
+  walk(doc.content)
+  return parts.join('').replace(/\s+/g, '').length
+}
 
 interface MemoState {
   memos: MemoMeta[]
@@ -46,15 +60,15 @@ export const useMemoStore = create<MemoState>((set, get) => ({
       tags: memo.tags,
       images: memo.images,
       plainTextPreview: memo.plainText.slice(0, 100),
-      wordCount: memo.plainText ? memo.plainText.replace(/\s+/g, '').length : 0,
+      wordCount: countWordsExcludingTags(memo.content),
       createdAt: memo.createdAt,
       updatedAt: memo.updatedAt,
       deletedAt: memo.deletedAt
     }
-    // Cache full content so MemoCard can render immediately without IPC
     const cache = new Map(get().contentCache)
     cache.set(memo.id, memo)
     set((state) => ({ memos: [meta, ...state.memos], contentCache: cache }))
+    useTagStore.getState().loadTags()
     return memo
   },
 
@@ -65,7 +79,7 @@ export const useMemoStore = create<MemoState>((set, get) => ({
       tags: memo.tags,
       images: memo.images,
       plainTextPreview: memo.plainText.slice(0, 100),
-      wordCount: memo.plainText ? memo.plainText.replace(/\s+/g, '').length : 0,
+      wordCount: countWordsExcludingTags(memo.content),
       createdAt: memo.createdAt,
       updatedAt: memo.updatedAt,
       deletedAt: memo.deletedAt
@@ -77,6 +91,7 @@ export const useMemoStore = create<MemoState>((set, get) => ({
       currentMemo: state.currentMemo?.id === memo.id ? memo : state.currentMemo,
       contentCache: cache
     }))
+    useTagStore.getState().loadTags()
     return memo
   },
 
@@ -90,6 +105,7 @@ export const useMemoStore = create<MemoState>((set, get) => ({
       editingMemoId: state.editingMemoId === id ? null : state.editingMemoId,
       contentCache: cache
     }))
+    useTagStore.getState().loadTags()
   },
 
   loadFullMemo: async (id) => {
@@ -114,7 +130,7 @@ export const useMemoStore = create<MemoState>((set, get) => ({
       tags: memo.tags,
       images: memo.images,
       plainTextPreview: memo.plainText.slice(0, 100),
-      wordCount: memo.plainText ? memo.plainText.replace(/\s+/g, '').length : 0,
+      wordCount: countWordsExcludingTags(memo.content),
       createdAt: memo.createdAt,
       updatedAt: memo.updatedAt,
       deletedAt: memo.deletedAt

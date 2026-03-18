@@ -37,7 +37,17 @@ const api: ElectronAPI = {
   },
   import: {
     selectDirectory: () => ipcRenderer.invoke('import:select-directory'),
-    flomo: (dirPath) => ipcRenderer.invoke('import:flomo', dirPath)
+    flomo: (dirPath) => ipcRenderer.invoke('import:flomo', dirPath),
+    anyhark: (dirPath) => ipcRenderer.invoke('import:anyhark', dirPath)
+  },
+  export: {
+    csv: () => ipcRenderer.invoke('export:csv'),
+    json: () => ipcRenderer.invoke('export:json')
+  },
+  onDataChanged: (callback: () => void) => {
+    const listener = (): void => callback()
+    ipcRenderer.on('data-changed', listener)
+    return () => { ipcRenderer.removeListener('data-changed', listener) }
   }
 }
 

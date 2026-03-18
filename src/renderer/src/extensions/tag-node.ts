@@ -1,5 +1,7 @@
 import { Node, mergeAttributes, InputRule } from '@tiptap/react'
 import { Fragment } from '@tiptap/pm/model'
+import { Plugin } from '@tiptap/pm/state'
+import { TextSelection } from '@tiptap/pm/state'
 
 export const TagNode = Node.create({
   name: 'tag',
@@ -47,8 +49,6 @@ export const TagNode = Node.create({
   addInputRules() {
     return [
       new InputRule({
-        // Match #tagpath followed by a space, anywhere in text
-        // Tag path can contain: letters, numbers, Chinese chars, underscores, slashes
         find: /#([^\s#]+)\s$/,
         handler: ({ state, range }) => {
           const fullMatch = state.doc.textBetween(range.from, range.to)
@@ -89,5 +89,28 @@ export const TagNode = Node.create({
           return isTag
         })
     }
+  },
+
+  addProseMirrorPlugins() {
+    const tagType = this.type
+    return [
+      new Plugin({
+        props: {
+          handleClickOn(view, _pos, node, nodePos, _event, direct) {
+            if (!view.editable || !direct) return false
+            if (node.type !== tagType) return false
+            const text = node.attrs.label || `#${node.attrs.path}`
+            const tr = view.state.tr.replaceWith(
+              nodePos,
+              nodePos + node.nodeSize,
+              view.state.schema.text(text)
+            )
+            tr.setSelection(TextSelection.create(tr.doc, nodePos + text.length))
+            view.dispatch(tr)
+            return true
+          }
+        }
+      })
+    ]
   }
 })

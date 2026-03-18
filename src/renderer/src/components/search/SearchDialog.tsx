@@ -78,6 +78,9 @@ export function SearchDialog(): React.JSX.Element {
             </button>
           )}
           <kbd className="text-[10px] text-muted-foreground/30 bg-muted/50 px-1.5 py-0.5 rounded border border-border/50">
+            ⌘K
+          </kbd>
+          <kbd className="text-[10px] text-muted-foreground/30 bg-muted/50 px-1.5 py-0.5 rounded border border-border/50">
             ESC
           </kbd>
         </div>
@@ -112,7 +115,7 @@ export function SearchDialog(): React.JSX.Element {
                       </span>
                     ))}
                     <span className="text-[11px] text-muted-foreground/30 ml-auto tabular-nums">
-                      {formatDistanceToNow(new Date(memo.updatedAt), {
+                      {formatDistanceToNow(new Date(memo.createdAt), {
                         addSuffix: true,
                         locale: zhCN
                       })}

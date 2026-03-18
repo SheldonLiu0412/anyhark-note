@@ -5,3 +5,6 @@ out
 .eslintcache
 *.log*
 .context
+.cursor
+.conductor
+.vscode

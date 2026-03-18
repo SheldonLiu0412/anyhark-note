@@ -4,6 +4,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { registerAllIpcHandlers } from './ipc'
 import { getImagePath } from './services/image.service'
+import { stopApiServer } from './services/api-server.service'
 
 // Register privileged scheme before app is ready
 protocol.registerSchemesAsPrivileged([
@@ -95,4 +96,8 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
+})
+
+app.on('will-quit', () => {
+  stopApiServer()
 })

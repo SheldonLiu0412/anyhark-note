@@ -41,6 +41,20 @@ export function extractTags(doc: TipTapDocument): string[] {
 }
 
 /**
+ * Count characters excluding tag nodes and #tag patterns in text.
+ */
+export function countWordsExcludingTags(doc: TipTapDocument): number {
+  const parts: string[] = []
+  walkNodes(doc.content, (node) => {
+    if (node.type === 'tag') return
+    if (node.text) {
+      parts.push(node.text.replace(/#[^\s#]+/g, ''))
+    }
+  })
+  return parts.join('').replace(/\s+/g, '').length
+}
+
+/**
  * Extract image filenames from image nodes.
  */
 export function extractImageFilenames(doc: TipTapDocument): string[] {
@@ -54,6 +68,33 @@ export function extractImageFilenames(doc: TipTapDocument): string[] {
     }
   })
   return images
+}
+
+/**
+ * Extract full content as plain text for CSV export.
+ * Preserves paragraph breaks, tag text, and mention labels.
+ */
+export function extractFullContentForExport(doc: TipTapDocument): string {
+  const paragraphs: string[] = []
+  for (const node of doc.content) {
+    if (node.type === 'image') continue
+    const parts: string[] = []
+    collectInlineText(node.content, parts)
+    paragraphs.push(parts.join(''))
+  }
+  return paragraphs.join('\n').trim()
+}
+
+function collectInlineText(nodes: TipTapNode[] | undefined, parts: string[]): void {
+  if (!nodes) return
+  for (const node of nodes) {
+    if (node.text) parts.push(node.text)
+    else if (node.type === 'tag') parts.push(node.attrs?.label || `#${node.attrs?.path}`)
+    else if (node.type === 'mention-note') parts.push('@Note')
+    else if (node.type === 'mention-link') parts.push(node.attrs?.label || node.attrs?.url || '')
+    else if (node.type === 'hardBreak') parts.push('\n')
+    if (node.content) collectInlineText(node.content, parts)
+  }
 }
 
 function walkNodes(nodes: TipTapNode[] | undefined, visitor: (node: TipTapNode) => void): void {

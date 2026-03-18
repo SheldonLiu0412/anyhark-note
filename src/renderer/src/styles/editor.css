@@ -89,6 +89,46 @@
   @apply hidden;
 }
 
+/* Mention note node - blue pill for @Note */
+.tiptap-editor .ProseMirror .mention-note-node,
+.memo-card .ProseMirror .mention-note-node {
+  @apply inline-flex items-center rounded-md bg-blue-500/10 text-blue-600 px-1.5 py-0.5 text-xs font-medium cursor-pointer;
+  @apply hover:bg-blue-500/20 transition-colors;
+}
+
+/* Mention link node - blue pill for links */
+.tiptap-editor .ProseMirror .mention-link-node,
+.memo-card .ProseMirror .mention-link-node {
+  @apply inline-flex items-center rounded-md bg-blue-500/10 text-blue-600 px-1.5 py-0.5 text-xs font-medium cursor-pointer;
+  @apply hover:bg-blue-500/20 transition-colors;
+}
+
+/* Link copied toast */
+.mention-link-toast {
+  @apply fixed bottom-4 left-1/2 -translate-x-1/2 px-3 py-1.5 text-xs font-medium rounded-lg bg-foreground text-background shadow-lg z-50;
+  animation: mention-toast-in 0.2s ease-out, mention-toast-out 0.3s ease-in 1.2s forwards;
+}
+
+@keyframes mention-toast-in {
+  from { opacity: 0; transform: translate(-50%, 8px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@keyframes mention-toast-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Mention option popup */
+.mention-popup {
+  @apply bg-popover border border-border rounded-lg shadow-lg overflow-hidden p-1 min-w-[120px];
+}
+
+.mention-popup-item {
+  @apply flex items-center gap-2 w-full px-3 py-1.5 text-sm rounded-md cursor-pointer text-left;
+  @apply hover:bg-accent transition-colors;
+}
+
 /* Tag suggestion dropdown */
 .tag-suggestion {
   @apply bg-popover border border-border rounded-lg shadow-lg overflow-hidden p-1;

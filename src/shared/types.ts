@@ -122,6 +122,13 @@ export interface FlomoImportResult {
   images: number
 }
 
+export interface AnyharkImportResult {
+  total: number
+  imported: number
+  skipped: number
+  images: number
+}
+
 // ============================================================
 // ElectronAPI shape exposed to renderer
 // ============================================================
@@ -159,5 +166,11 @@ export interface ElectronAPI {
   import: {
     selectDirectory(): Promise<string | null>
     flomo(dirPath: string): Promise<FlomoImportResult>
+    anyhark(dirPath: string): Promise<AnyharkImportResult>
   }
+  export: {
+    csv(): Promise<{ count: number; path: string } | null>
+    json(): Promise<{ count: number; path: string } | null>
+  }
+  onDataChanged(callback: () => void): () => void
 }

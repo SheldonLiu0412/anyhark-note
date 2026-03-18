@@ -5,6 +5,7 @@ import UnderlineExt from '@tiptap/extension-underline'
 import HighlightExt from '@tiptap/extension-highlight'
 import ImageExt from '@tiptap/extension-image'
 import { TagNode } from '@renderer/extensions/tag-node'
+import { MentionNoteNode, MentionLinkNode } from '@renderer/extensions/mention-node'
 import { MoreHorizontal, Pencil, Trash2, History } from 'lucide-react'
 import { cn } from '@renderer/lib/utils'
 import { format } from 'date-fns'
@@ -20,7 +21,9 @@ const readonlyExtensions = [
   UnderlineExt,
   HighlightExt.configure({ multicolor: false }),
   ImageExt.configure({ inline: false, allowBase64: false }),
-  TagNode
+  TagNode,
+  MentionNoteNode,
+  MentionLinkNode
 ]
 
 /** Extract all anyhark-image:// URLs from a TipTap document */
@@ -87,8 +90,8 @@ export function MemoCard({ memo }: MemoCardProps): React.JSX.Element {
   const isEditing = editingMemoId === memo.id
 
   const timeDisplay = useMemo(
-    () => format(new Date(memo.updatedAt), 'yyyy-MM-dd HH:mm', { locale: zhCN }),
-    [memo.updatedAt]
+    () => format(new Date(memo.createdAt), 'yyyy-MM-dd HH:mm', { locale: zhCN }),
+    [memo.createdAt]
   )
 
   // Load full content — re-load when updatedAt changes (after edit or restore)
@@ -98,16 +101,19 @@ export function MemoCard({ memo }: MemoCardProps): React.JSX.Element {
     })
   }, [memo.id, memo.updatedAt, loadFullMemo])
 
-  // Scroll into view when navigated from search
+  // Scroll into view when navigated from search (delay lets layout settle after view switch)
   useEffect(() => {
     if (scrollToMemoId === memo.id && cardRef.current) {
-      cardRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      cardRef.current.classList.add('bg-primary/5')
-      const timer = setTimeout(() => {
-        cardRef.current?.classList.remove('bg-primary/5')
-        setScrollToMemoId(null)
-      }, 1500)
-      return () => clearTimeout(timer)
+      const scrollTimer = setTimeout(() => {
+        cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        cardRef.current?.classList.add('bg-primary/5')
+        const highlightTimer = setTimeout(() => {
+          cardRef.current?.classList.remove('bg-primary/5')
+          setScrollToMemoId(null)
+        }, 1500)
+        return () => clearTimeout(highlightTimer)
+      }, 200)
+      return () => clearTimeout(scrollTimer)
     }
   }, [scrollToMemoId, memo.id, setScrollToMemoId])
 
