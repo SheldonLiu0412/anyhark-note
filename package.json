@@ -1,7 +1,7 @@
 {
   "name": "anyhark",
-  "version": "0.1.1",
-  "description": "本地卡片笔记应用",
+  "version": "0.1.2",
+  "description": "本地上下文管理应用",
   "main": "./out/main/index.js",
   "author": "SheldonLiu0412",
   "license": "MIT",
