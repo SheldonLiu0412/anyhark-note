@@ -144,7 +144,10 @@ curl -X POST http://127.0.0.1:17533/api/export/json \
         "type": "paragraph",
         "content": [
           { "type": "tag", "attrs": { "path": "thinking", "label": "#thinking" } },
-          { "type": "text", "text": " 笔记正文内容" }
+          { "type": "text", "text": " 笔记正文内容 " },
+          { "type": "text", "text": "@Note-thinking-笔记前十个字", "marks": [{ "type": "mention-note", "attrs": { "memoId": "01KKK..." } }] },
+          { "type": "text", "text": " " },
+          { "type": "text", "text": "🔗 链接名称", "marks": [{ "type": "mention-link", "attrs": { "url": "https://example.com" } }] }
         ]
       }
     ]
@@ -166,7 +169,7 @@ curl -X POST http://127.0.0.1:17533/api/export/json \
   "id": "01KKK5KXSPMD2B5DWPKXP9NG0J",
   "tags": ["thinking"],
   "images": [],
-  "plainTextPreview": "笔记内容预览（前100字）...",
+  "plainTextPreview": "笔记内容预览（前300字）...",
   "wordCount": 42,
   "createdAt": "2026-03-09T15:57:11.000Z",
   "updatedAt": "2026-03-09T15:57:11.000Z",
