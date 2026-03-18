@@ -18,8 +18,9 @@
 </p>
 
 <p align="center">
-  <img src="docs/images/宣传图.png" width="800" alt="宣传图" />
+  <img src="docs/images/宣传图.png" width="800" alt="宣传图" style="border-radius: 16px;" />
 </p>
+
 
 ---
 
