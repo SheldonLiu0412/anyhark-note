@@ -5,9 +5,9 @@
 <h1 align="center">Anyhark</h1>
 
 <p align="center">
-  一个面向人类和 Ta 的 Agent 分身的本地知识笔记应用。
+  一个面向人类及其 Agent 分身的本地知识笔记应用。
 
-  -- “人类负责 Any ，Agent负责 Hark ”
+  “人类负责 Any ，Agent负责 Hark ”
 </p>
 
 <p align="center">
