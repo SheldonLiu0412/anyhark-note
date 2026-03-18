@@ -1,7 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react'
 import { Search, X } from 'lucide-react'
 import { useSearchStore } from '@renderer/stores/search.store'
-import { useMemoStore } from '@renderer/stores/memo.store'
 import { useUIStore } from '@renderer/stores/ui.store'
 import { formatDistanceToNow } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
@@ -15,7 +14,8 @@ export function SearchDialog(): React.JSX.Element {
   const isSearching = useSearchStore((s) => s.isSearching)
   const closeSearchDialog = useSearchStore((s) => s.closeSearchDialog)
   const setCurrentView = useUIStore((s) => s.setCurrentView)
-  const setEditingMemo = useMemoStore((s) => s.setEditingMemo)
+  const setSelectedMemoId = useUIStore((s) => s.setSelectedMemoId)
+  const setScrollToMemoId = useUIStore((s) => s.setScrollToMemoId)
 
   const debounceRef = useRef<ReturnType<typeof setTimeout>>()
 
@@ -42,12 +42,10 @@ export function SearchDialog(): React.JSX.Element {
     [setSearchKeyword, executeSearch]
   )
 
-  const setScrollToMemoId = useUIStore((s) => s.setScrollToMemoId)
-
   const handleResultClick = (memoId: string): void => {
-    setEditingMemo(null)
     closeSearchDialog()
     setCurrentView('all')
+    setSelectedMemoId(memoId)
     setScrollToMemoId(memoId)
   }
 

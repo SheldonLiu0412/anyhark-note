@@ -4,6 +4,7 @@
 
 .tiptap-editor .ProseMirror {
   @apply outline-none min-h-[80px] text-sm leading-relaxed;
+  padding-bottom: 40vh;
 }
 
 .tiptap-editor .ProseMirror p {
@@ -39,9 +40,21 @@
   @apply underline underline-offset-2;
 }
 
-/* Images are rendered in separate gallery, hide inline */
-.tiptap-editor .ProseMirror img {
-  @apply hidden;
+/* Image node view */
+.tiptap-editor .ProseMirror .image-node-view {
+  @apply my-2;
+}
+
+.tiptap-editor .ProseMirror .image-node-view img {
+  @apply max-w-full h-auto rounded-lg cursor-pointer transition-shadow;
+  @apply hover:shadow-md;
+}
+
+.tiptap-editor .ProseMirror .image-node-view.ProseMirror-selectednode img,
+.tiptap-editor .ProseMirror .image-node-view.image-in-selection img {
+  outline: 3px solid hsl(210 100% 52% / 0.5);
+  outline-offset: 2px;
+  border-radius: 0.5rem;
 }
 
 /* Tag node styling */
@@ -49,6 +62,22 @@
 .memo-card .ProseMirror .tag-node {
   @apply inline-flex items-center rounded-md bg-primary/10 text-primary px-1.5 py-0.5 text-xs font-medium cursor-pointer;
   @apply hover:bg-primary/20 transition-colors;
+}
+
+.tiptap-editor .ProseMirror .tag-node.tag-node-editing {
+  @apply ring-1 ring-primary/40;
+}
+
+.tiptap-editor .ProseMirror .tag-node .tag-node-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: inherit;
+  color: inherit;
+  padding: 0;
+  margin: 0;
+  min-width: 2ch;
 }
 
 /* Read-only memo card rendering */
@@ -84,9 +113,9 @@
   @apply underline underline-offset-2;
 }
 
-/* Images are rendered in separate gallery, hide inline */
+/* Inline images in read-only cards */
 .memo-card .ProseMirror img {
-  @apply hidden;
+  @apply max-w-full h-auto rounded-lg my-2;
 }
 
 /* Mention note node - blue pill for @Note */
@@ -105,13 +134,14 @@
 
 /* Link copied toast */
 .mention-link-toast {
-  @apply fixed bottom-4 left-1/2 -translate-x-1/2 px-3 py-1.5 text-xs font-medium rounded-lg bg-foreground text-background shadow-lg z-50;
-  animation: mention-toast-in 0.2s ease-out, mention-toast-out 0.3s ease-in 1.2s forwards;
+  @apply fixed bottom-12 left-1/2 px-3 py-1.5 text-[11px] font-medium rounded-lg bg-foreground/80 text-background shadow-lg z-50 pointer-events-none;
+  transform: translateX(-50%);
+  animation: mention-toast-in 0.15s ease-out, mention-toast-out 0.3s ease-in 1.7s forwards;
 }
 
 @keyframes mention-toast-in {
-  from { opacity: 0; transform: translate(-50%, 8px); }
-  to { opacity: 1; transform: translate(-50%, 0); }
+  from { opacity: 0; transform: translateX(-50%) translateY(4px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
 @keyframes mention-toast-out {

@@ -57,9 +57,9 @@ export async function importFromAppleNotes(): Promise<AppleNotesImportResult> {
 
       const { document: tiptapDoc, plainText } = htmlToTipTap(cleanedHtml)
 
-      // Tag: #Apple Notes/文件夹名称/笔记前5字
+      // Tag: #AppleNotes/文件夹名称/笔记前5字
       const prefix = plainText.replace(/\s+/g, '').slice(0, 5) || '未命名'
-      const appleNotesTag = `Apple Notes/${note.folder}/${prefix}`
+      const appleNotesTag = `AppleNotes/${note.folder}/${prefix}`
 
       if (tiptapDoc.content.length > 0) {
         const first = tiptapDoc.content[0]

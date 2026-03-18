@@ -1,7 +1,5 @@
 import { Node, mergeAttributes, InputRule } from '@tiptap/react'
 import { Fragment } from '@tiptap/pm/model'
-import { Plugin } from '@tiptap/pm/state'
-import { TextSelection } from '@tiptap/pm/state'
 
 export const TagNode = Node.create({
   name: 'tag',
@@ -71,46 +69,126 @@ export const TagNode = Node.create({
     return {
       Backspace: () =>
         this.editor.commands.command(({ tr, state }) => {
-          let isTag = false
           const { selection } = state
           const { empty, anchor } = selection
 
           if (!empty) return false
 
-          state.doc.nodesBefore(anchor, (node, pos) => {
-            if (node.type.name === this.name) {
-              isTag = true
-              tr.delete(pos, pos + node.nodeSize)
-              return false
-            }
-            return undefined
-          })
-
-          return isTag
+          const $pos = state.doc.resolve(anchor)
+          const nodeBefore = $pos.nodeBefore
+          if (nodeBefore?.type.name === this.name) {
+            tr.delete(anchor - nodeBefore.nodeSize, anchor)
+            return true
+          }
+          return false
         })
     }
   },
 
-  addProseMirrorPlugins() {
-    const tagType = this.type
-    return [
-      new Plugin({
-        props: {
-          handleClickOn(view, _pos, node, nodePos, _event, direct) {
-            if (!view.editable || !direct) return false
-            if (node.type !== tagType) return false
-            const text = node.attrs.label || `#${node.attrs.path}`
-            const tr = view.state.tr.replaceWith(
-              nodePos,
-              nodePos + node.nodeSize,
-              view.state.schema.text(text)
-            )
-            tr.setSelection(TextSelection.create(tr.doc, nodePos + text.length))
-            view.dispatch(tr)
-            return true
+  addNodeView() {
+    return ({ node: initialNode, getPos, editor }) => {
+      let currentNode = initialNode
+      let editing = false
+      let cancelled = false
+
+      const wrapper = document.createElement('span')
+      wrapper.className = 'tag-node'
+      wrapper.setAttribute('data-tag', currentNode.attrs.path)
+      wrapper.textContent = currentNode.attrs.label || `#${currentNode.attrs.path}`
+
+      wrapper.addEventListener('click', (e) => {
+        if (!editor.isEditable || editing) return
+        e.preventDefault()
+        e.stopPropagation()
+        editing = true
+        wrapper.classList.add('tag-node-editing')
+
+        const input = document.createElement('input')
+        input.type = 'text'
+        input.className = 'tag-node-input'
+        const label = currentNode.attrs.label || `#${currentNode.attrs.path}`
+        input.value = label
+        input.style.width = `${label.length + 1}ch`
+
+        wrapper.textContent = ''
+        wrapper.appendChild(input)
+        input.focus()
+        input.select()
+
+        const finishEditing = (): void => {
+          if (!editing) return
+          editing = false
+          wrapper.classList.remove('tag-node-editing')
+
+          if (cancelled) {
+            cancelled = false
+            wrapper.textContent = currentNode.attrs.label || `#${currentNode.attrs.path}`
+            return
           }
+
+          const raw = input.value.trim()
+          if (typeof getPos !== 'function') return
+          const pos = getPos()
+          if (pos == null) return
+
+          if (!raw) {
+            const tr = editor.view.state.tr.delete(pos, pos + currentNode.nodeSize)
+            editor.view.dispatch(tr)
+            return
+          }
+
+          const newPath = raw.startsWith('#') ? raw.slice(1) : raw
+          if (!newPath) {
+            const tr = editor.view.state.tr.delete(pos, pos + currentNode.nodeSize)
+            editor.view.dispatch(tr)
+            return
+          }
+
+          const tr = editor.view.state.tr.setNodeMarkup(pos, undefined, {
+            path: newPath,
+            label: `#${newPath}`
+          })
+          editor.view.dispatch(tr)
         }
+
+        input.addEventListener('blur', finishEditing)
+
+        input.addEventListener('keydown', (ke) => {
+          if (ke.key === 'Enter') {
+            ke.preventDefault()
+            input.blur()
+          } else if (ke.key === 'Escape') {
+            ke.preventDefault()
+            cancelled = true
+            input.blur()
+          }
+          ke.stopPropagation()
+        })
+
+        input.addEventListener('input', () => {
+          input.style.width = `${input.value.length + 1}ch`
+        })
       })
-    ]
+
+      return {
+        dom: wrapper,
+        update(updatedNode) {
+          if (updatedNode.type.name !== 'tag') return false
+          currentNode = updatedNode
+          wrapper.setAttribute('data-tag', updatedNode.attrs.path)
+          if (!editing) {
+            wrapper.textContent = updatedNode.attrs.label || `#${updatedNode.attrs.path}`
+          }
+          return true
+        },
+        ignoreMutation() {
+          return true
+        },
+        stopEvent() {
+          return editing
+        },
+        destroy() {}
+      }
+    }
   }
 })

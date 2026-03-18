@@ -6,7 +6,7 @@ import HighlightExt from '@tiptap/extension-highlight'
 import ImageExt from '@tiptap/extension-image'
 import Placeholder from '@tiptap/extension-placeholder'
 import { TagNode } from '@renderer/extensions/tag-node'
-import { MentionNoteNode, MentionLinkNode } from '@renderer/extensions/mention-node'
+import { MentionNoteMark, MentionLinkMark } from '@renderer/extensions/mention-node'
 import { MemoToolbar } from './MemoToolbar'
 import { EditableImageGallery } from './ImageGallery'
 import type { ImageItem } from './ImageGallery'
@@ -22,8 +22,6 @@ function extractPlainText(doc: TipTapDocument): string {
   function walk(node: TipTapNode): void {
     if (node.text) parts.push(node.text)
     if (node.type === 'tag' && node.attrs?.label) parts.push(String(node.attrs.label))
-    if (node.type === 'mention-note') parts.push('@Note')
-    if (node.type === 'mention-link' && node.attrs?.label) parts.push(String(node.attrs.label))
     if (node.content) node.content.forEach(walk)
   }
   doc.content.forEach(walk)
@@ -336,8 +334,8 @@ export function MemoEditor({ memoId, initialContent, onCancel }: MemoEditorProps
       HighlightExt.configure({ multicolor: false }),
       ImageExt.configure({ inline: false, allowBase64: false }),
       TagNode,
-      MentionNoteNode,
-      MentionLinkNode,
+      MentionNoteMark,
+      MentionLinkMark,
       Placeholder.configure({
         placeholder: '听见此刻的想法...',
         emptyEditorClass: 'is-editor-empty'
@@ -487,8 +485,9 @@ export function MemoEditor({ memoId, initialContent, onCancel }: MemoEditorProps
         .chain()
         .focus()
         .insertContent({
-          type: 'mention-note',
-          attrs: { memoId: memo.id, label: '@Note' }
+          type: 'text',
+          text: '@Note',
+          marks: [{ type: 'mention-note', attrs: { memoId: memo.id } }]
         })
         .insertContent(' ')
         .run()
@@ -505,8 +504,9 @@ export function MemoEditor({ memoId, initialContent, onCancel }: MemoEditorProps
         .chain()
         .focus()
         .insertContent({
-          type: 'mention-link',
-          attrs: { url, label: displayLabel }
+          type: 'text',
+          text: `🔗 ${displayLabel}`,
+          marks: [{ type: 'mention-link', attrs: { url } }]
         })
         .insertContent(' ')
         .run()

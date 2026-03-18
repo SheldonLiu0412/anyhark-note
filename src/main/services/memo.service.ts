@@ -87,7 +87,7 @@ async function saveMetadataIndex(): Promise<void> {
  * Build lightweight MemoMeta from a full Memo object.
  */
 export function buildMemoMeta(memo: Memo): MemoMeta {
-  const preview = memo.plainText.slice(0, 100)
+  const preview = memo.plainText.slice(0, 300)
   const wordCount = countWordsExcludingTags(memo.content)
 
   return {

@@ -10,16 +10,26 @@ import { api } from './lib/api'
 
 function App(): React.JSX.Element {
   const loadMemos = useMemoStore((s) => s.loadMemos)
+  const memos = useMemoStore((s) => s.memos)
   const loadTags = useTagStore((s) => s.loadTags)
   const isSearchDialogOpen = useSearchStore((s) => s.isSearchDialogOpen)
   const openSearchDialog = useSearchStore((s) => s.openSearchDialog)
   const closeSearchDialog = useSearchStore((s) => s.closeSearchDialog)
   const setScrollToMemoId = useUIStore((s) => s.setScrollToMemoId)
+  const selectedMemoId = useUIStore((s) => s.selectedMemoId)
+  const setSelectedMemoId = useUIStore((s) => s.setSelectedMemoId)
 
   useEffect(() => {
     loadMemos()
     loadTags()
   }, [loadMemos, loadTags])
+
+  // Auto-select the first memo when none is selected
+  useEffect(() => {
+    if (!selectedMemoId && memos.length > 0) {
+      setSelectedMemoId(memos[0].id)
+    }
+  }, [selectedMemoId, memos, setSelectedMemoId])
 
   useEffect(() => {
     return api.onDataChanged(() => {
@@ -31,16 +41,24 @@ function App(): React.JSX.Element {
   useEffect(() => {
     const handler = (e: Event): void => {
       const detail = (e as CustomEvent).detail
-      if (detail?.memoId) setScrollToMemoId(detail.memoId)
+      if (detail?.memoId) {
+        setScrollToMemoId(detail.memoId)
+        setSelectedMemoId(detail.memoId)
+      }
     }
     window.addEventListener('anyhark:scroll-to-memo', handler)
     return () => window.removeEventListener('anyhark:scroll-to-memo', handler)
-  }, [setScrollToMemoId])
+  }, [setScrollToMemoId, setSelectedMemoId])
 
-  const handleNewMemo = useCallback(() => {
-    const editor = document.querySelector('.tiptap-editor .ProseMirror') as HTMLElement
-    editor?.focus()
-  }, [])
+  const handleNewMemo = useCallback(async () => {
+    const memo = await useMemoStore.getState().createMemo({
+      content: { type: 'doc', content: [{ type: 'paragraph' }] },
+      plainText: '',
+      tags: [],
+      images: []
+    })
+    setSelectedMemoId(memo.id)
+  }, [setSelectedMemoId])
 
   const handleToggleSearch = useCallback(() => {
     if (isSearchDialogOpen) closeSearchDialog()

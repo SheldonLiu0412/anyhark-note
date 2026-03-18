@@ -1,6 +1,6 @@
 {
   "name": "anyhark",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "本地上下文管理应用",
   "main": "./out/main/index.js",
   "author": "SheldonLiu0412",

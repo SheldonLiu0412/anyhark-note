@@ -5,7 +5,7 @@ import UnderlineExt from '@tiptap/extension-underline'
 import HighlightExt from '@tiptap/extension-highlight'
 import ImageExt from '@tiptap/extension-image'
 import { TagNode } from '@renderer/extensions/tag-node'
-import { MentionNoteNode, MentionLinkNode } from '@renderer/extensions/mention-node'
+import { MentionNoteMark, MentionLinkMark } from '@renderer/extensions/mention-node'
 import { MoreHorizontal, Pencil, Trash2, History } from 'lucide-react'
 import { cn } from '@renderer/lib/utils'
 import { format } from 'date-fns'
@@ -15,6 +15,7 @@ import { useUIStore } from '@renderer/stores/ui.store'
 import { MemoEditor } from './MemoEditor'
 import { ImageGallery } from './ImageGallery'
 import type { MemoMeta, TipTapDocument, TipTapNode } from '@shared/types'
+import { migrateMentionNodes } from '@renderer/extensions/mention-node'
 
 const readonlyExtensions = [
   StarterKit.configure({ heading: false }),
@@ -22,8 +23,8 @@ const readonlyExtensions = [
   HighlightExt.configure({ multicolor: false }),
   ImageExt.configure({ inline: false, allowBase64: false }),
   TagNode,
-  MentionNoteNode,
-  MentionLinkNode
+  MentionNoteMark,
+  MentionLinkMark
 ]
 
 /** Extract all anyhark-image:// URLs from a TipTap document */
@@ -57,7 +58,7 @@ function MemoCardContent({ content }: { content: TipTapDocument }): React.JSX.El
   const editor = useEditor(
     {
       extensions: readonlyExtensions,
-      content: textContent,
+      content: migrateMentionNodes(textContent),
       editable: false
     },
     [textContent]

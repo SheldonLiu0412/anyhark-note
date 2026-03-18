@@ -1,60 +1,73 @@
-import { Node, mergeAttributes } from '@tiptap/react'
+import { Mark, mergeAttributes } from '@tiptap/react'
 import { Plugin } from '@tiptap/pm/state'
+import type { TipTapDocument, TipTapNode } from '@shared/types'
 
-export const MentionNoteNode = Node.create({
+export function migrateMentionNodes(doc: TipTapDocument): TipTapDocument {
+  function walkNode(node: TipTapNode): TipTapNode | TipTapNode[] {
+    if (node.type === 'mention-note') {
+      return {
+        type: 'text',
+        text: String(node.attrs?.label || '@Note'),
+        marks: [{ type: 'mention-note', attrs: { memoId: node.attrs?.memoId || '' } }]
+      }
+    }
+    if (node.type === 'mention-link') {
+      return {
+        type: 'text',
+        text: `🔗 ${node.attrs?.label || node.attrs?.url || ''}`,
+        marks: [{ type: 'mention-link', attrs: { url: node.attrs?.url || '' } }]
+      }
+    }
+    if (node.content) {
+      return { ...node, content: node.content.flatMap(walkNode) }
+    }
+    return node
+  }
+  return { ...doc, content: doc.content.flatMap((n) => [walkNode(n)].flat()) as TipTapNode[] }
+}
+
+export const MentionNoteMark = Mark.create({
   name: 'mention-note',
-  group: 'inline',
-  inline: true,
-  atom: true,
+  inclusive: false,
+  excludes: '_',
 
   addAttributes() {
     return {
-      memoId: { default: '' },
-      label: { default: '@Note' }
+      memoId: {
+        default: '',
+        parseHTML: (el) => (el as HTMLElement).getAttribute('data-mention-note'),
+        renderHTML: (attrs) => ({ 'data-mention-note': attrs.memoId })
+      }
     }
   },
 
   parseHTML() {
-    return [
-      {
-        tag: 'span[data-mention-note]',
-        getAttrs: (el) => {
-          const element = el as HTMLElement
-          return {
-            memoId: element.getAttribute('data-mention-note'),
-            label: element.textContent
-          }
-        }
-      }
-    ]
+    return [{ tag: 'span[data-mention-note]' }]
   },
 
-  renderHTML({ node, HTMLAttributes }) {
+  renderHTML({ HTMLAttributes }) {
     return [
       'span',
-      mergeAttributes(HTMLAttributes, {
-        'data-mention-note': node.attrs.memoId,
-        class: 'mention-note-node'
-      }),
-      node.attrs.label || '@Note'
+      mergeAttributes(HTMLAttributes, { class: 'mention-note-node' }),
+      0
     ]
   },
 
   addProseMirrorPlugins() {
-    const nodeType = this.type
     return [
       new Plugin({
         props: {
-          handleClickOn(view, _pos, node, _nodePos, _event, direct) {
-            if (node.type !== nodeType || !direct) return false
-            if (!view.editable) {
+          handleClick(_view, _pos, event) {
+            const target = event.target as HTMLElement
+            const el = target.closest('[data-mention-note]') as HTMLElement
+            if (!el) return false
+            const memoId = el.getAttribute('data-mention-note')
+            if (memoId) {
               window.dispatchEvent(
-                new CustomEvent('anyhark:scroll-to-memo', {
-                  detail: { memoId: node.attrs.memoId }
-                })
+                new CustomEvent('anyhark:scroll-to-memo', { detail: { memoId } })
               )
             }
-            return true
+            return false
           }
         }
       })
@@ -62,60 +75,51 @@ export const MentionNoteNode = Node.create({
   }
 })
 
-export const MentionLinkNode = Node.create({
+export const MentionLinkMark = Mark.create({
   name: 'mention-link',
-  group: 'inline',
-  inline: true,
-  atom: true,
+  inclusive: false,
+  excludes: '_',
 
   addAttributes() {
     return {
-      url: { default: '' },
-      label: { default: '' }
+      url: {
+        default: '',
+        parseHTML: (el) => (el as HTMLElement).getAttribute('data-mention-link'),
+        renderHTML: (attrs) => ({ 'data-mention-link': attrs.url })
+      }
     }
   },
 
   parseHTML() {
-    return [
-      {
-        tag: 'span[data-mention-link]',
-        getAttrs: (el) => {
-          const element = el as HTMLElement
-          return {
-            url: element.getAttribute('data-mention-link'),
-            label: element.textContent
-          }
-        }
-      }
-    ]
+    return [{ tag: 'span[data-mention-link]' }]
   },
 
-  renderHTML({ node, HTMLAttributes }) {
+  renderHTML({ HTMLAttributes }) {
     return [
       'span',
-      mergeAttributes(HTMLAttributes, {
-        'data-mention-link': node.attrs.url,
-        class: 'mention-link-node'
-      }),
-      node.attrs.label || node.attrs.url
+      mergeAttributes(HTMLAttributes, { class: 'mention-link-node' }),
+      0
     ]
   },
 
   addProseMirrorPlugins() {
-    const nodeType = this.type
     return [
       new Plugin({
         props: {
-          handleClickOn(view, _pos, node, _nodePos, _event, direct) {
-            if (node.type !== nodeType || !direct) return false
-            navigator.clipboard.writeText(node.attrs.url)
-            const el = view.dom.closest('.memo-card') || view.dom
-            const toast = document.createElement('div')
-            toast.className = 'mention-link-toast'
-            toast.textContent = '链接已复制'
-            el.appendChild(toast)
-            setTimeout(() => toast.remove(), 1500)
-            return true
+          handleClick(_view, _pos, event) {
+            const target = event.target as HTMLElement
+            const el = target.closest('[data-mention-link]') as HTMLElement
+            if (!el) return false
+            const url = el.getAttribute('data-mention-link')
+            if (url) {
+              navigator.clipboard.writeText(url)
+              const toast = document.createElement('div')
+              toast.className = 'mention-link-toast'
+              toast.textContent = '链接已复制'
+              document.body.appendChild(toast)
+              setTimeout(() => toast.remove(), 2000)
+            }
+            return false
           }
         }
       })

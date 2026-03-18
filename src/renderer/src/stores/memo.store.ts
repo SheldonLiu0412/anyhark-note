@@ -20,8 +20,6 @@ interface MemoState {
   memos: MemoMeta[]
   currentMemo: Memo | null
   isLoading: boolean
-  editingMemoId: string | null
-  /** Cache of full memo content to avoid flicker on newly created/updated memos */
   contentCache: Map<string, Memo>
   loadMemos: () => Promise<void>
   createMemo: (req: CreateMemoRequest) => Promise<Memo>
@@ -29,14 +27,12 @@ interface MemoState {
   deleteMemo: (id: string) => Promise<void>
   loadFullMemo: (id: string) => Promise<Memo>
   refreshMemo: (id: string) => Promise<Memo>
-  setEditingMemo: (id: string | null) => void
 }
 
 export const useMemoStore = create<MemoState>((set, get) => ({
   memos: [],
   currentMemo: null,
   isLoading: false,
-  editingMemoId: null,
   contentCache: new Map(),
 
   loadMemos: async () => {
@@ -59,7 +55,7 @@ export const useMemoStore = create<MemoState>((set, get) => ({
       id: memo.id,
       tags: memo.tags,
       images: memo.images,
-      plainTextPreview: memo.plainText.slice(0, 100),
+      plainTextPreview: memo.plainText.slice(0, 300),
       wordCount: countWordsExcludingTags(memo.content),
       createdAt: memo.createdAt,
       updatedAt: memo.updatedAt,
@@ -78,7 +74,7 @@ export const useMemoStore = create<MemoState>((set, get) => ({
       id: memo.id,
       tags: memo.tags,
       images: memo.images,
-      plainTextPreview: memo.plainText.slice(0, 100),
+      plainTextPreview: memo.plainText.slice(0, 300),
       wordCount: countWordsExcludingTags(memo.content),
       createdAt: memo.createdAt,
       updatedAt: memo.updatedAt,
@@ -102,7 +98,6 @@ export const useMemoStore = create<MemoState>((set, get) => ({
     set((state) => ({
       memos: state.memos.filter((m) => m.id !== id),
       currentMemo: state.currentMemo?.id === id ? null : state.currentMemo,
-      editingMemoId: state.editingMemoId === id ? null : state.editingMemoId,
       contentCache: cache
     }))
     useTagStore.getState().loadTags()
@@ -129,7 +124,7 @@ export const useMemoStore = create<MemoState>((set, get) => ({
       id: memo.id,
       tags: memo.tags,
       images: memo.images,
-      plainTextPreview: memo.plainText.slice(0, 100),
+      plainTextPreview: memo.plainText.slice(0, 300),
       wordCount: countWordsExcludingTags(memo.content),
       createdAt: memo.createdAt,
       updatedAt: memo.updatedAt,
@@ -142,9 +137,5 @@ export const useMemoStore = create<MemoState>((set, get) => ({
       contentCache: cache
     }))
     return memo
-  },
-
-  setEditingMemo: (id) => {
-    set({ editingMemoId: id })
   }
 }))
