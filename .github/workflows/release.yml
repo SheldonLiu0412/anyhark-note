@@ -53,7 +53,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: macos-${{ matrix.arch }}
-          path: dist/*.dmg
+          path: |
+            dist/*.dmg
+            dist/*.blockmap
+            dist/*.yml
+            !dist/builder-debug.yml
 
   build-windows:
     runs-on: windows-latest
@@ -74,7 +78,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-x64
-          path: dist/*.exe
+          path: |
+            dist/*.exe
+            dist/*.blockmap
+            dist/*.yml
+            !dist/builder-debug.yml
 
   release:
     needs: [build-macos, build-windows]

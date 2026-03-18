@@ -38,4 +38,8 @@ nsis:
   artifactName: ${name}-${version}-setup.${ext}
 dmg:
   artifactName: ${name}-${version}-${arch}.${ext}
+publish:
+  provider: github
+  owner: SheldonLiu0412
+  repo: anyhark-note
 npmRebuild: false

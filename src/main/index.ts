@@ -1,6 +1,7 @@
-import { app, shell, BrowserWindow, protocol, net } from 'electron'
+import { app, shell, BrowserWindow, protocol, net, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+import { autoUpdater } from 'electron-updater'
 import icon from '../../resources/icon.png?asset'
 import { registerAllIpcHandlers } from './ipc'
 import { getImagePath } from './services/image.service'
@@ -81,6 +82,35 @@ app.whenReady().then(async () => {
   await registerAllIpcHandlers()
 
   createWindow()
+
+  if (!is.dev) {
+    autoUpdater.autoDownload = false
+    autoUpdater.checkForUpdates().catch(() => {})
+    autoUpdater.on('update-available', (info) => {
+      dialog
+        .showMessageBox({
+          type: 'info',
+          title: '发现新版本',
+          message: `Anyhark ${info.version} 已发布，是否下载更新？`,
+          buttons: ['下载更新', '稍后再说']
+        })
+        .then(({ response }) => {
+          if (response === 0) autoUpdater.downloadUpdate()
+        })
+    })
+    autoUpdater.on('update-downloaded', () => {
+      dialog
+        .showMessageBox({
+          type: 'info',
+          title: '更新就绪',
+          message: '新版本已下载完成，重启应用即可完成更新。',
+          buttons: ['立即重启', '稍后']
+        })
+        .then(({ response }) => {
+          if (response === 0) autoUpdater.quitAndInstall()
+        })
+    })
+  }
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
